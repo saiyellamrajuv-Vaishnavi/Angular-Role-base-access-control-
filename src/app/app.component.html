@@ -1,0 +1,157 @@
+
+<nav class="breadcrumb">
+  <a href="#">Home</a>
+  <mat-icon class="bc-sep">chevron_right</mat-icon>
+  <a href="#">Admin</a>
+  <mat-icon class="bc-sep">chevron_right</mat-icon>
+  <span>Access Control</span>
+</nav>
+
+<mat-card class="main-card">
+  <mat-card-header>
+    <mat-card-title>Maintain Role Level Access Control</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()" novalidate>
+      <p class="section-label">Search Criteria</p>
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="field">
+          <mat-label>Role</mat-label>
+          <input matInput formControlName="role" placeholder="e.g. Branch Manager" />
+          <mat-error *ngIf="searchForm.get('role')?.hasError('required')">
+            Role is required
+          </mat-error>
+        </mat-form-field>
+
+  
+        <mat-form-field appearance="outline" class="field">
+          <mat-label>Access Control Type</mat-label>
+          <mat-select formControlName="accessControlType">
+            <mat-option *ngFor="let t of accessControlTypes" [value]="t.value">
+              {{ t.label }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="searchForm.get('accessControlType')?.hasError('required')">
+            Please select a type
+          </mat-error>
+        </mat-form-field>
+
+      
+        <mat-form-field appearance="outline" class="field chip-field">
+          <mat-label>Case Category</mat-label>
+          <mat-chip-grid #catChipGrid>
+            <mat-chip-row *ngFor="let cat of caseCategories" (removed)="removeCategory(cat)" [removable]="true">
+              {{ cat }}
+              <button matChipRemove [attr.aria-label]="'Remove ' + cat">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+            <input placeholder="Add category…" [matChipInputFor]="catChipGrid"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="addCategory($event)" />
+          </mat-chip-grid>
+        </mat-form-field>
+
+      </div>
+
+      <div class="sub-row">
+        <mat-form-field appearance="outline" class="field chip-field sub-field">
+          <mat-label>Case Sub-category</mat-label>
+          <mat-chip-grid #subChipGrid>
+            <mat-chip-row *ngFor="let sub of caseSubCategories" (removed)="removeSubCategory(sub)" [removable]="true">
+              {{ sub }}
+              <button matChipRemove [attr.aria-label]="'Remove ' + sub">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+            <input placeholder="Add sub-category…" [matChipInputFor]="subChipGrid"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="addSubCategory($event)" />
+          </mat-chip-grid>
+        </mat-form-field>
+      </div>
+
+    
+      <div class="btn-row">
+        <button mat-stroked-button type="button" (click)="onClear()">Clear</button>
+        <button mat-flat-button color="primary" type="submit">Search</button>
+      </div>
+
+    </form>
+
+    <ng-container *ngIf="showResults">
+      <mat-divider class="divider"></mat-divider>
+
+      <div class="table-header-row">
+        <span class="table-section-title">Access Controls</span>
+        <button mat-icon-button matTooltip="Filter" class="filter-btn">
+          <mat-icon>filter_list</mat-icon>
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table mat-table [dataSource]="tableData" class="ac-table">
+
+        
+          <ng-container matColumnDef="cat">
+            <th mat-header-cell *matHeaderCellDef>Case Category</th>
+            <td mat-cell *matCellDef="let row">
+              <span [class]="'badge badge-' + (row.cat === 'NRI' ? 'nri' : 'corp')">
+                {{ row.cat }}
+              </span>
+            </td>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="sub">
+            <th mat-header-cell *matHeaderCellDef>Case Sub-category</th>
+            <td mat-cell *matCellDef="let row">{{ row.sub }}</td>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="field">
+            <th mat-header-cell *matHeaderCellDef>Field Name</th>
+            <td mat-cell *matCellDef="let row">{{ row.field }}</td>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="access">
+            <th mat-header-cell *matHeaderCellDef>Access Type</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="no-access">
+                <span class="dot"></span>{{ row.access }}
+              </span>
+            </td>
+          </ng-container>
+
+        
+          <ng-container matColumnDef="mask">
+            <th mat-header-cell *matHeaderCellDef>Masking Preview</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="mask">{{ row.mask }}</span>
+            </td>
+          </ng-container>
+
+        
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let row">
+              <div class="action-cell">
+                <button mat-icon-button matTooltip="View" (click)="onView(row)" class="icon-btn">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button matTooltip="Edit" (click)="onEdit(row)" class="icon-btn">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+      </div>
+
+    </ng-container>
+  </mat-card-content>
+</mat-card>
